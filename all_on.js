@@ -1,13 +1,40 @@
 
 const { Client } = require('tplink-smarthome-api');
+//var Server       = reqire('simple-websocket/server');
+const WebSocket = require('ws');
+
 const client = new Client();
-
-
 const plug = client.getPlug({ host: '192.168.0.16' });
 
-//const plug = client.getPlug({ alias: 'Hall Lights'  });
+var plugState = false;
+plug.setPowerState(plugState);
 
-plug.setPowerState(true);
+
+var server = new WebSocket.Server( { port: 8000 });
+
+server.on('connection', function connection (ws) {
+ 	console.log("Received connection");
+	ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+        plugState = !plugState;
+        plug.setPowerState(plugState);
+
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Works -- not getting deleted
 
 // Search for all plugs and turn them on
 client.on('plug-new', plug => {
@@ -18,6 +45,5 @@ client.on('plug-new', plug => {
   //});
 });
 
-
-
 client.startDiscovery();
+*/
